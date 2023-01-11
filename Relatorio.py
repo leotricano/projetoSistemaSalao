@@ -5,6 +5,7 @@ import tkinter as tk
 import datetime as dt
 from tkinter import ttk
 import pandas as pd
+import win32com.client as win32
 
 clientes_excel = pd.read_excel('Salao.xlsx', engine='openpyxl')
 
