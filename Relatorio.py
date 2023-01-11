@@ -1,8 +1,12 @@
 #video referecia:https://www.youtube.com/watch?v=TXlkiMIBlTM
+#youtube.com/watch?v=Av1fItUacgQ
 #Tentando fazer um programa para o salão de um amigo
 import tkinter as tk
 import datetime as dt
 from tkinter import ttk
+import pandas as pd
+
+clientes_excel = pd.read_excel('Salao.xlsx', engine='openpyxl')
 
 #Lista para o combobox (Testando sem banco de dados)
 lista_tipos=["Corte","Unha","Mechas"]
@@ -11,13 +15,7 @@ lista_dados=[]
 
 janela = tk.Tk()
 def center(win):
-    # Parametro para deixar a janela no centro da tela
-
-    # Apparently a common hack to get the window size. Temporarily hide the
-    # window to avoid update_idletasks() drawing the window in the wrong
-    # position.
-    win.update_idletasks()  # Update "requested size" from geometry manager
-
+    win.update_idletasks()
     # Definir a dimensão da janela usando largura (width) e altura (height)
     width = win.winfo_width()
     frm_width = win.winfo_rootx() - win.winfo_x()
@@ -27,26 +25,33 @@ def center(win):
     titlebar_height = win.winfo_rooty() - win.winfo_y()
     win_height = height + titlebar_height + frm_width
 
-    # Get the window position from the top dynamically as well as position from left or right as follows
+
     x = win.winfo_screenwidth() // 2 - win_width // 2
     y = win.winfo_screenheight() // 2 - win_height // 2
 
-    # this is the line that will center your window
+
     win.geometry('{}x{}+{}+{}'.format(width, height, x, y))
 
-    # This seems to draw the window frame immediately, so only call deiconify()
-    # after setting correct window position
+
     win.deiconify()
 
 def inserindo_dados():
-    cliente = entry_cliente.get()
-    servicos = entry_servicos.get()
-    pagamento = entry_tipo_pagamento.get()
-    data_servico = dt.datetime.now()
-    data_servico = data_servico.strftime("%d/%m/%Y %H:%M")
-    dados = len(lista_dados)+1
+    cliente = entry_cliente.get() #Pegando informação na entrada cliente
+    servicos = entry_servicos.get() #Pegando informação na combobox servicos
+    pagamento = entry_tipo_pagamento.get() #Pegando informação na combobox tipo de pagamento
+
+    data_servico = dt.datetime.now()  #Chamando o metodo do dia atual
+    data_servico = data_servico.strftime("%d/%m/%Y %H:%M") #Metodo para editar o dia da maneira correta ex: dia/mes/ano hora:minuto
+
+    dados = clientes_excel.shape[0] + len(lista_dados)+1
     dados_str = "DAD-{}".format(dados)
-    lista_dados.append((dados_str,cliente,servicos,pagamento,data_servico))
+    lista_dados.append((dados_str, cliente, servicos, pagamento, data_servico))
+
+
+
+
+
+
 
 #Tamaho tela (Depende do que você está fazendo recomendo ir testando
 janela.minsize(300,210)
@@ -86,7 +91,7 @@ entry_tipo_pagamento = ttk.Combobox(values=lista_tipo_pagamento) #Lista criada n
 entry_tipo_pagamento.grid(row=4, column=2,padx=10,pady=10, stick='nswe',columnspan=2)
 
 
-botao_confirmar = tk.Button(text="Confirmar",command=inserindo_dados())
+botao_confirmar = tk.Button(text="Confirmar", command=inserindo_dados)
 botao_confirmar.grid(row=5, column=0,padx=10,pady=10, stick='nswe',columnspan=4)
 
 
@@ -94,4 +99,7 @@ botao_confirmar.grid(row=5, column=0,padx=10,pady=10, stick='nswe',columnspan=4)
 
 janela.mainloop()
 
-
+novo_clientes_excel = pd.DataFrame(lista_dados, columns=['Codigo','Data','Cliente','Serviços','Tipo de pagamento'])
+clientes_excel = clientes_excel.append(novo_clientes_excel, ignore_index=True)
+clientes_excel.to_excel('Salao.xlsx', index=False)
+print(lista_dados)
